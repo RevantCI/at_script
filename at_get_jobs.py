@@ -23,7 +23,7 @@ def readMDFile(path):
     story["story"]=s
     return story
 jobs_arr = []
-def readJobs(path):
+def read_job_ids(path):
     with open(path,"r", encoding="utf-8") as f:
         jobs = f.read().splitlines()
         for job in jobs:
@@ -32,7 +32,7 @@ def readJobs(path):
 
 translated_strings=[]
 
-def read_jobs():
+def read_job_texts():
     for job in jobs_arr:
         url_post =  'http://192.168.2.232:8000/v2/ai/model/job?job_id='+str(job)
         headers = {"Authorization": "Basic YmVuejpCM256QDEyMw=="}
@@ -41,16 +41,23 @@ def read_jobs():
         translated_strings.append(response_json["data"]["output"]["translations"][0]["translatedText"])
 
 def compare():
+    i=1
     with open('mt.txt', 'w', encoding="utf-8") as f:
         for mt, manual in zip(translated_strings, ta01["story"]):
+            print(i)
             print("mt",mt)
             print("manual",manual["text"])
-            f.write(f"{mt}\n")
+            f.write(f"{str(i)}\n")
+            f.write(f"Machine Translated:{mt}\n")
+            f.write(f"Manual:{manual['text']}\n")
+            score = sentence_bleu([mt.split()], manual["text"].split())
+            f.write(f"Score:{str(score)}\n\n")
             print(sentence_bleu([mt.split()], manual["text"].split()))
+            i=i+1
 
-readJobs(r"jobs.txt")
-read_jobs()
-ta01=readMDFile(r"tam\content\01.md")
+read_job_ids(r"jobs.txt")
+read_job_texts()
+ta01=readMDFile(r"mal\content\01.md")
 # print(json.dumps(ta01, indent=2))
 compare()
 

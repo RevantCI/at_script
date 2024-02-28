@@ -28,11 +28,9 @@ def translate(obs):
     for item in story:
         print(item["text"])
         new_data = [item["text"]]
-        url_post =  'http://192.168.2.232:8000/v2/ai/model/text/translate?model_name=nllb-600M&source_language=eng_Latn&target_language=tam_Taml'
+        url_post =  'http://192.168.2.232:8000/v2/ai/model/text/translate?model_name=nllb-600M&source_language=eng_Latn&target_language=mal_Mlym'
         headers = {"Authorization": "Basic YmVuejpCM256QDEyMw=="}
-
         post_response = requests.post(url_post, json=new_data,headers=headers)
-
         response_json = post_response.json()
         print(response_json)
         jobs.append(response_json)
