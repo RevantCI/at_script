@@ -25,16 +25,24 @@ jobs = []
 
 def translate(obs):
     story = obs["story"]
+    i=0
     for item in story:
-        print(item["text"])
-        new_data = [item["text"]]
-        url_post =  'http://192.168.2.232:8000/v2/ai/model/text/translate?model_name=nllb-600M&source_language=eng_Latn&target_language=mal_Mlym'
+        # print(item["text"])
+        
+        url_post =  'http://192.168.2.232:8000/v2/ai/model/text/translate?model_name=nllb-1.3B&source_language=eng_Latn&target_language=hin_Deva'
         headers = {"Authorization": "Basic YmVuejpCM256QDEyMw=="}
-        post_response = requests.post(url_post, json=new_data,headers=headers)
-        response_json = post_response.json()
-        print(response_json)
-        jobs.append(response_json)
-    with open('jobs.txt', 'w') as f:
+        lines = item["text"].split(".")
+        for line in lines:
+            line = line.strip()
+            if(line !="" and line!="”"):
+                print(i,"#",line)
+                i=i+1
+                new_data = [line]
+                post_response = requests.post(url_post, json=new_data,headers=headers)
+                response_json = post_response.json()
+                print(response_json)
+                jobs.append(response_json)
+    with open('jobs_hindi_nllb-600M.txt', 'w') as f:
         for job in jobs:
             f.write(f"{job}\n")
 # read the file

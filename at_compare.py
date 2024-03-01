@@ -1,7 +1,8 @@
 import json
 import requests
-from nltk.translate.bleu_score import sentence_bleu
+from datasets import load_metric
 
+# from nltk.translate.bleu_score import sentence_bleu
 
 def readMDFile(path):
     with open(path,"r", encoding="utf-8") as f:
@@ -42,22 +43,37 @@ def read_job_texts():
 
 def compare():
     i=1
-    with open('mt.txt', 'w', encoding="utf-8") as f:
-        for mt, manual in zip(translated_strings, ta01["story"]):
+    # bleu = BLEU(tokenize="none", lowercase=False, smooth="floor")  # Set options according to your needs
+    sacrebleu = load_metric("sacrebleu")
+    manual_lines=[]
+    for item in ta01["story"]:
+        lines = item["text"].split("।")
+        for line in lines:
+            line = line.strip()
+            if(line !="" and line!="”" and line !='"'):
+                manual_lines.append(line)
+    with open('hin_comparison.txt', 'w', encoding="utf-8") as f:
+        for mt, manual in zip(translated_strings, manual_lines):
             print(i)
             print("mt",mt)
-            print("manual",manual["text"])
+            print("manual",manual)
             f.write(f"{str(i)}\n")
             f.write(f"Machine Translated:{mt}\n")
-            f.write(f"Manual:{manual['text']}\n")
-            score = sentence_bleu([mt.split()], manual["text"].split())
+            f.write(f"Manual:{manual}\n")
+            score = sacrebleu.compute(predictions=[manual],references= [[mt]])
+            # score = bleu.compute(
+            #     predictions=manual["text"],
+            #     references=[mt],
+            #     weights=(0, 0, 0.25,0.75),
+            # )
+            # score = sentence_bleu([mt], manual["text"],weights=(0, 0, 0.25,0.75))
             f.write(f"Score:{str(score)}\n\n")
-            print(sentence_bleu([mt.split()], manual["text"].split()))
+            print(score)
             i=i+1
 
-read_job_ids(r"jobs.txt")
+read_job_ids(r"jobs_hindi_nllb-600M.txt")
 read_job_texts()
-ta01=readMDFile(r"mal\content\01.md")
+ta01=readMDFile(r"hin\content\01.md")
 # print(json.dumps(ta01, indent=2))
 compare()
 
